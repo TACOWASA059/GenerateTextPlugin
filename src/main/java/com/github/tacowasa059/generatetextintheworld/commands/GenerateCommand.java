@@ -34,7 +34,14 @@ public class GenerateCommand implements CommandExecutor {
             Material.LIGHT_BLUE_WOOL,
             Material.GRAY_WOOL,
             Material.LIGHT_GRAY_WOOL,
-            Material.BROWN_WOOL
+            Material.BROWN_WOOL,
+            Material.CYAN_WOOL,
+            Material.LIME_WOOL,
+            Material.MAGENTA_WOOL,
+            Material.ORANGE_WOOL,
+            Material.PINK_WOOL,
+            Material.PURPLE_WOOL
+
     );
     public GenerateCommand(GenerateTextInTheWorld plugin){
         this.plugin=plugin;
@@ -81,6 +88,7 @@ public class GenerateCommand implements CommandExecutor {
         //色の並び替え
         List<Integer> list1= Arrays.asList(IntStream.rangeClosed(0, woolMaterial.size()-1).boxed().toArray(Integer[]::new));
         Collections.shuffle(list1);
+        //z方向を向いているとき
         if(Math.abs(location.getDirection().getZ())>Math.abs(location.getDirection().getX())) {
             //中心位置に揃える
             location.add(Math.signum(location.getDirection().getZ()) * (size - 5) * text.length() / 2.0, size / 2.0, 0.0);
@@ -117,6 +125,7 @@ public class GenerateCommand implements CommandExecutor {
                 }
             }
         }
+        //x方向を向いているとき
         else{
             //中心位置に揃える
             location.add(0.0, size / 2.0, -Math.signum(location.getDirection().getX()) * (size - 5) * text.length() / 2.0);
