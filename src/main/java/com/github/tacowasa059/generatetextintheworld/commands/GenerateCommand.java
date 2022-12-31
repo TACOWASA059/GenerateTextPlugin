@@ -55,7 +55,12 @@ public class GenerateCommand implements CommandExecutor {
                 Location location=p.getLocation().add(p.getLocation().getDirection().multiply(distance));
                 //textの左上の座標がlocation
                 //表示するtextを取得
-                String text=args[1];
+                StringBuilder builder=new StringBuilder();
+                for(int i=1;i<args.length;i++){
+                    builder.append(args[i]);
+                    if(i<args.length-1) builder.append(" ");
+                }
+                String text= builder.toString();
                 text=text.replace("\"", "");
                 int size=plugin.getConfig().getInt("size");
                 //座標が不適切であるとき
@@ -76,36 +81,74 @@ public class GenerateCommand implements CommandExecutor {
         //色の並び替え
         List<Integer> list1= Arrays.asList(IntStream.rangeClosed(0, woolMaterial.size()-1).boxed().toArray(Integer[]::new));
         Collections.shuffle(list1);
-        location.add(-(size-5)*text.length()/2.0,0.0,0.0);
-        //System.out.println(list1);
-        for(int k=0;k<text.length();k++){
-            BufferedImage img = new BufferedImage(size-5, size, BufferedImage.TYPE_INT_ARGB);
-            Graphics g = img.getGraphics();
-            g.setColor(Color.BLACK);
-            Font font1 = new Font("ＭＳＰゴシック",Font.PLAIN,(int)(size*0.75));
-            g.setFont(font1);
-            g.drawString(String.valueOf(text.charAt(k)), 0, size-5);
-            //System.out.println(text.charAt(k));
-            Location fire_loc=location.clone();
-            fire_loc.add((double)(img.getWidth()/2+(size-5)*k),-(double)(img.getHeight()/2),0.0);
-            Firework firework=fire_loc.getWorld().spawn(fire_loc, Firework.class);
-            FireworkMeta data =(FireworkMeta) firework.getFireworkMeta();
-            data.addEffects(FireworkEffect.builder().withColor(org.bukkit.Color.RED).withColor(org.bukkit.Color.BLUE).withColor(org.bukkit.Color.YELLOW).with(FireworkEffect.Type.BALL_LARGE).withFlicker().build());
-            data.setPower(1);
-            firework.setFireworkMeta(data);
+        if(Math.abs(location.getDirection().getZ())>Math.abs(location.getDirection().getX())) {
+            //中心位置に揃える
+            location.add(Math.signum(location.getDirection().getZ()) * (size - 5) * text.length() / 2.0, size / 2.0, 0.0);
+            //1文字ずつ処理する
+            for (int k = 0; k < text.length(); k++) {
+                BufferedImage img = new BufferedImage(size - 5, size, BufferedImage.TYPE_INT_ARGB);
+                Graphics g = img.getGraphics();
+                g.setColor(Color.BLACK);
+                Font font1 = new Font("ＭＳＰゴシック", Font.PLAIN, (int) (size * 0.75));
+                g.setFont(font1);
+                g.drawString(String.valueOf(text.charAt(k)), 0, size - 5);
+                //System.out.println(text.charAt(k));
+                Location fire_loc = location.clone();
+                fire_loc.add(-Math.signum(location.getDirection().getZ()) * (double) (img.getWidth() / 2 + (size - 5) * k), -(double) (img.getHeight() / 2), 0.0);
+                Firework firework = fire_loc.getWorld().spawn(fire_loc, Firework.class);
+                FireworkMeta data = (FireworkMeta) firework.getFireworkMeta();
+                data.addEffects(FireworkEffect.builder().withColor(org.bukkit.Color.RED).withColor(org.bukkit.Color.BLUE).withColor(org.bukkit.Color.YELLOW).with(FireworkEffect.Type.BALL_LARGE).withFlicker().build());
+                data.setPower(1);
+                firework.setFireworkMeta(data);
 
 
-            for(int i=0;i<img.getHeight();i++){
-                for(int j=0;j<img.getWidth();j++){
-                    int pixel = img.getRGB(j, i);
-                    int a = pixel >> 24;//Aの数値(0~255)
-                    Location loc=location.clone();
-                    loc.add((double)(j+(size-5)*k),-(double)i,0.0);
-                    if (a!=0){
-                        loc.getBlock().setType(woolMaterial.get(list1.get(k%woolMaterial.size())));
+                for (int i = 0; i < img.getHeight(); i++) {
+                    for (int j = 0; j < img.getWidth(); j++) {
+                        int pixel = img.getRGB(j, i);
+                        int a = pixel >> 24;//Aの数値(0~255)
+                        Location loc = location.clone();
+                        loc.add(-Math.signum(location.getDirection().getZ()) * (double) (j + (size - 5) * k), -(double) i, 0.0);
+                        if (a != 0) {
+                            loc.getBlock().setType(woolMaterial.get(list1.get(k % woolMaterial.size())));
+                        } else {
+                            loc.getBlock().setType(Material.AIR);
+                        }
                     }
-                    else{
-                        loc.getBlock().setType(Material.AIR);
+                }
+            }
+        }
+        else{
+            //中心位置に揃える
+            location.add(0.0, size / 2.0, -Math.signum(location.getDirection().getX()) * (size - 5) * text.length() / 2.0);
+            //1文字ずつ処理する
+            for (int k = 0; k < text.length(); k++) {
+                BufferedImage img = new BufferedImage(size - 5, size, BufferedImage.TYPE_INT_ARGB);
+                Graphics g = img.getGraphics();
+                g.setColor(Color.BLACK);
+                Font font1 = new Font("ＭＳＰゴシック", Font.PLAIN, (int) (size * 0.75));
+                g.setFont(font1);
+                g.drawString(String.valueOf(text.charAt(k)), 0, size - 5);
+                //System.out.println(text.charAt(k));
+                Location fire_loc = location.clone();
+                fire_loc.add(0.0, -(double) (img.getHeight() / 2), Math.signum(location.getDirection().getX()) * (double) (img.getWidth() / 2 + (size - 5) * k));
+                Firework firework = fire_loc.getWorld().spawn(fire_loc, Firework.class);
+                FireworkMeta data = (FireworkMeta) firework.getFireworkMeta();
+                data.addEffects(FireworkEffect.builder().withColor(org.bukkit.Color.RED).withColor(org.bukkit.Color.BLUE).withColor(org.bukkit.Color.YELLOW).with(FireworkEffect.Type.BALL_LARGE).withFlicker().build());
+                data.setPower(1);
+                firework.setFireworkMeta(data);
+
+
+                for (int i = 0; i < img.getHeight(); i++) {
+                    for (int j = 0; j < img.getWidth(); j++) {
+                        int pixel = img.getRGB(j, i);
+                        int a = pixel >> 24;//Aの数値(0~255)
+                        Location loc = location.clone();
+                        loc.add(0.0, -(double) i, Math.signum(location.getDirection().getX()) * (double) (j + (size - 5) * k));
+                        if (a != 0) {
+                            loc.getBlock().setType(woolMaterial.get(list1.get(k % woolMaterial.size())));
+                        } else {
+                            loc.getBlock().setType(Material.AIR);
+                        }
                     }
                 }
             }
