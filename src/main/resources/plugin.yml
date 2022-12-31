@@ -1,0 +1,8 @@
+name: GenerateTextInTheWorld
+version: '${project.version}'
+main: com.github.tacowasa059.generatetextintheworld.GenerateTextInTheWorld
+api-version: 1.16
+commands:
+  GenerateText:
+    description: generate text in the world
+    usage: /<command> distance <text>
